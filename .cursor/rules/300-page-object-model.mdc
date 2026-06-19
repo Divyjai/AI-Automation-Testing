@@ -1,0 +1,115 @@
+---
+description: Page Object Model standards for tests and page classes
+globs: "{tests/**/*.ts,pages/**/*.ts,fixtures/**/*.ts}"
+alwaysApply: false
+---
+
+# Page Object Model (POM)
+
+## Fixture Chain (read top to bottom)
+
+```
+allure.fixture.ts     extends @playwright/test — adds Allure metadata to test
+        ↓
+amazon.fixture.ts     extends allure.fixture — injects page objects (guest default)
+        ↓
+auth.fixture.ts       extends amazon.fixture — adds AUTH_STATE_PATH / hasAuthState()
+        ↓
+spec file             imports test + expect from amazon OR auth fixture only
+```
+
+| Spec type | Import from | `test` source | `expect` source |
+|-----------|-------------|---------------|-----------------|
+| Guest | `fixtures/amazon.fixture.ts` | `allure` → `amazon` chain | same file |
+| Authenticated | `fixtures/auth.fixture.ts` | `auth` → `amazon` → `allure` chain | same file (`expect` re-exported from `@playwright/test` in `auth.fixture.ts` — **permitted**) |
+
+**Rules:**
+- Never import `test` from `@playwright/test` in Amazon.in specs
+- Always import `test` and `expect` from the **same** fixture file
+- Auth specs still get Allure metadata because `auth.fixture` extends `amazon.fixture`
+
+## Layer Responsibilities
+
+| Layer | Location | Contains | Must NOT contain |
+|-------|----------|----------|------------------|
+| Spec | `tests/amazon-in/` | Test flow, assertions, scenario comments | Locators, raw clicks/fills |
+| Allure fixture | `fixtures/allure.fixture.ts` | Allure metadata on `test` | Page objects |
+| Amazon fixture | `fixtures/amazon.fixture.ts` | Page object injection | Test logic |
+| Auth fixture | `fixtures/auth.fixture.ts` | Auth helpers + storage state path | Locators |
+| Page Object | `pages/amazon-in/` | Locators, UI actions | `expect()` assertions |
+| Config | `config/` | Env vars, test data | UI logic |
+
+## Guest Spec Pattern
+
+```typescript
+// spec: specs/amazon-in/search.md
+// scenario: SRCH-REG-001
+
+import { test, expect } from '../../../fixtures/amazon.fixture';
+import { testData } from '../../../config/test-data';
+
+test.describe('Search', () => {
+  test('valid search returns results @regression @positive', async ({
+    homePage,
+    searchResultsPage,
+  }) => {
+    await homePage.open();
+    await homePage.search(testData.search.valid);
+    await searchResultsPage.waitForResults();
+    await expect(searchResultsPage.firstResult()).toBeVisible();
+  });
+});
+```
+
+## Authenticated Spec Pattern
+
+```typescript
+// spec: specs/amazon-in/professional-test-cases.md
+// scenario: TC-012
+
+import { test, expect, AUTH_STATE_PATH, hasAuthState } from '../../../fixtures/auth.fixture';
+import { testData } from '../../../config/test-data';
+
+test.describe('Session — Authenticated', () => {
+  test.beforeAll(() => {
+    test.skip(!hasAuthState(), 'Run qa-pipeline login (stage 2) first');
+  });
+  test.use({ storageState: AUTH_STATE_PATH });
+
+  test('cart persists after refresh @positive', async ({ homePage, cartPage }) => {
+    await homePage.open();
+    await cartPage.open();
+    await expect(cartPage.cartHeading).toBeVisible();
+  });
+});
+```
+
+## Page Object Pattern
+
+```typescript
+export class HomePage extends BasePage {
+  readonly searchInput: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.searchInput = page.getByPlaceholder('Search Amazon.in');
+  }
+
+  async search(term: string): Promise<void> {
+    await this.searchInput.fill(term);
+    await this.searchInput.press('Enter');
+  }
+}
+```
+
+## Adding a New Page
+
+1. Create `pages/amazon-in/<feature>.page.ts` extending `BasePage`
+2. Export from `pages/index.ts`
+3. Register fixture in `fixtures/amazon.fixture.ts`
+4. Use fixture in specs — never instantiate page objects manually in specs
+
+## Refactoring Rule
+
+If a locator appears in 2+ specs → move to page object.
+If an action sequence repeats → add a method to page object.

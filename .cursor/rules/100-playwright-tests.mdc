@@ -1,0 +1,84 @@
+---
+description: Playwright test authoring standards — POM, fixtures, best practices
+globs: tests/**/*.ts
+alwaysApply: false
+---
+
+# Playwright Test Standards
+
+Read `QA-PERSONA.md`, `300-page-object-model.mdc`, and `600-guard-rules.mdc`.
+
+## File Header
+
+One `id_scheme` per spec file — header uses **one** scenario ID from that scheme only:
+
+```typescript
+// spec: specs/amazon-in/<plan>.md
+// scenario: <ID>   ← single ID; must match parent spec id_scheme
+```
+
+| Parent spec `id_scheme` | `// scenario:` example |
+|-------------------------|-------------------------|
+| `feature` | `SRCH-REG-001` |
+| `document` | `TC-001` |
+| `flow` | `JUICER-003` |
+
+Never combine schemes in one header line. See `200-test-plans.mdc`.
+
+## Imports (required)
+
+**Guest suites:**
+
+```typescript
+import { test, expect } from '../../../fixtures/amazon.fixture';
+import { testData } from '../../../config/test-data';
+```
+
+**Authenticated suites:**
+
+```typescript
+import { test, expect, AUTH_STATE_PATH, hasAuthState } from '../../../fixtures/auth.fixture';
+import { testData } from '../../../config/test-data';
+```
+
+Never import `test` from `@playwright/test` directly. `expect` comes from the same fixture file as `test`.
+
+## Structure
+
+- One manual scenario = one automated test
+- Tags in title: `@regression @positive`
+- Step comments mirror manual test steps
+- **Specs orchestrate** — call page object methods, then assert
+- **No locators in specs** — use page object properties/methods
+
+## Assertions (in specs only)
+
+```typescript
+await expect(searchResultsPage.firstResult()).toBeVisible();
+await expect(productPage.title).not.toBeEmpty();
+await expect(cartPage.emptyCartMessage).toBeVisible();
+```
+
+## Anti-Patterns (blocked by guard rules)
+
+```typescript
+// ❌ Locator in spec
+await page.getByPlaceholder('Search Amazon.in').fill('books');
+
+// ❌ Hardcoded URL
+await page.goto('https://www.amazon.in');
+
+// ❌ Hardcoded test data
+await homePage.search('books');
+
+// ✅ Correct
+await homePage.open();
+await homePage.search(testData.search.valid);
+```
+
+## Reliability
+
+- No `page.waitForTimeout()` without documented reason
+- No `networkidle`
+- `test.fixme()` only for confirmed app defects with comment
+- Use `test.skip()` when env prerequisites missing (e.g. no credentials)

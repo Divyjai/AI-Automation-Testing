@@ -1,0 +1,72 @@
+name: Playwright + Allure
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Download previous Allure history
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: allure-history
+          path: allure-report/history
+
+      - name: Run Playwright tests
+        env:
+          CI: true
+          TEST_ENV: ci
+          PLAYWRIGHT_PROJECT: chromium
+        run: npm run test:professional
+
+      - name: Generate Allure report
+        env:
+          ALLURE_REPORT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: npm run allure:generate
+
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-report
+          path: allure-report
+          retention-days: 30
+
+      - name: Upload Allure history for trends
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: allure-history
+          path: allure-report/history
+          retention-days: 30
+
+      - name: Upload Playwright HTML report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 14

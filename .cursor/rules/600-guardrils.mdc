@@ -1,0 +1,60 @@
+---
+description: Mandatory guard rails — security, architecture, and quality enforcement
+alwaysApply: true
+---
+
+# Guard Rules (Always Enforced)
+
+These rules are non-negotiable. Violations must be fixed before merge.
+
+## Security Guards
+
+- **NEVER** commit `.env`, `.env.local`, `.env.staging`, or any file with real credentials
+- **NEVER** hardcode passwords, API keys, emails, or OTPs in source code
+- **NEVER** store OTP in `.env`, files, or code — OTP comes from user chat at runtime only
+- **NEVER** commit `playwright/.auth/` (saved login sessions)
+- **NEVER** log or print password or OTP values in test output
+- **ALWAYS** read credentials from `config/env.config.ts` → `env` object
+- **ALWAYS** keep `.env.example` updated when adding new env variables
+
+## Architecture Guards
+
+- **NEVER** put locators (`getByRole`, `locator()`, CSS selectors) in spec files
+- **NEVER** put page interactions (`click`, `fill`, `press`) directly in spec files
+- **ALWAYS** use Page Object Model — locators and actions live in `pages/`
+- **ALWAYS** import `test` from the fixture chain — never from `@playwright/test` directly:
+  - **Guest suites:** `fixtures/amazon.fixture.ts` (chains through `allure.fixture.ts`)
+  - **Authenticated suites:** `fixtures/auth.fixture.ts` (extends `amazon.fixture.ts`; `expect` re-export from `@playwright/test` is permitted)
+- **ALWAYS** import `expect` from the same fixture file as `test` in each spec
+- **ALWAYS** read URLs, pincodes, search terms from `config/test-data.ts` or `config/env.config.ts`
+- **NEVER** hardcode `https://www.amazon.in` in tests — use `baseURL` via `goto('/')`
+
+## Test Spec Guards
+
+- Spec files contain **orchestration only**: arrange → act (via page object) → assert
+- One manual scenario = one test; include `// scenario:` header with **one ID** from the parent spec's declared `id_scheme` (`feature` / `document` / `flow`) — schemes are **mutually exclusive per spec file** (see `200-test-plans.mdc`)
+- Tags required: `@regression`, `@positive`, `@negative`, or `@edge`
+- **NEVER** use `test.only` in committed code
+- **NEVER** use `page.waitForTimeout()` without a documented reason
+- **NEVER** use deprecated APIs (`networkidle`)
+
+## Page Object Guards
+
+- Page objects expose **actions** (methods) and **elements** (readonly Locators)
+- Page objects do **not** contain `expect()` assertions — assertions stay in specs
+- New UI element → add to page object first, then use in spec
+- Extend `BasePage` for all Amazon.in pages; shared logic goes in `base.page.ts`
+
+## Environment Guards
+
+- All configurable values go in `.env` → loaded by `config/env.config.ts`
+- Document every new variable in `.env.example`
+- Switch environments: `ENV_FILE=.env.staging npx playwright test`
+- Account tests must call `requireAccountCredentials()` or skip when credentials missing
+
+## When Adding New Features
+
+1. Add locators + actions to appropriate page object in `pages/amazon-in/`
+2. Add test data to `config/test-data.ts` (backed by env vars)
+3. Write spec using fixtures — no raw `page.locator()` calls
+4. Update `.env.example` if new env vars are needed

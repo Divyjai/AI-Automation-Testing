@@ -1,0 +1,19 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/allure-results/
+/allure-report/
+# Keep categories source in repo; generated report stays ignored
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+playwright/.auth/
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.staging
+.env.production
+.env.*.local

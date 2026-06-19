@@ -1,0 +1,40 @@
+import type { Category } from 'allure-js-commons/sdk/types';
+
+/**
+ * Custom defect categories for Allure report grouping and analytics.
+ * Keep in sync with reporting/allure/categories.json
+ */
+export const ALLURE_CATEGORIES: Category[] = [
+  {
+    name: 'Product defects',
+    description: 'Failures caused by application bugs or unexpected UI behavior',
+    matchedStatuses: ['failed'],
+    messageRegex: '.*(expect|assertion|timeout|locator|visible|enabled).*',
+  },
+  {
+    name: 'Test defects',
+    description: 'Failures caused by incorrect test logic, data, or automation code',
+    matchedStatuses: ['failed', 'broken'],
+    messageRegex: '.*(strict mode|test error|reference error|syntax error).*',
+  },
+  {
+    name: 'Infrastructure / Environment',
+    description: 'Network, throttling, CI instability, or environment issues',
+    matchedStatuses: ['failed', 'broken'],
+    messageRegex: '.*(net::|503|rush hour|throttl|ECONNREFUSED|ETIMEDOUT|navigation).*',
+  },
+  {
+    name: 'Authentication',
+    description: 'Login, OTP, session, or credential-related failures',
+    matchedStatuses: ['failed'],
+    messageRegex: '.*(sign in|login|password|otp|credential|auth).*',
+  },
+  {
+    name: 'Ignored tests',
+    matchedStatuses: ['skipped'],
+  },
+  {
+    name: 'Flaky tests',
+    flaky: true,
+  },
+];

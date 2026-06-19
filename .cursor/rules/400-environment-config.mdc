@@ -1,0 +1,63 @@
+---
+description: Environment file and configuration management standards
+globs: "{config/**/*.ts,playwright.config.ts,.env*,fixtures/**/*.ts}"
+alwaysApply: false
+---
+
+# Environment Configuration
+
+## File Structure
+
+```
+.env.example          # Committed template — document all variables
+.env                  # Local secrets — GITIGNORED
+.env.staging          # Optional per-environment — GITIGNORED
+config/
+  env.config.ts       # Loads env, exports typed `env` object
+  test-data.ts        # Stable test data sourced from env
+```
+
+## Loading Order
+
+1. `ENV_FILE` env var selects file (default: `.env`)
+2. `config/env.config.ts` loads via dotenv at import time
+3. `playwright.config.ts` imports `env` for `baseURL`
+4. Tests import `testData` and `env` — never `process.env` directly
+
+## Usage in Tests
+
+```typescript
+import { testData } from '../../../config/test-data';
+import { hasAccountCredentials } from '../../../config/env.config';
+
+test('account test @positive', async ({ homePage }) => {
+  test.skip(!hasAccountCredentials(), 'Credentials not configured in .env');
+  // ...
+});
+```
+
+## Switching Environments
+
+```bash
+# Default local
+npx playwright test
+
+# Staging env file
+ENV_FILE=.env.staging npx playwright test
+
+# Override single variable
+BASE_URL=https://www.amazon.in npx playwright test
+```
+
+## Adding a New Variable
+
+1. Add to `config/env.config.ts` with default fallback
+2. Document in `.env.example` with comment
+3. If test data, expose via `config/test-data.ts`
+4. Never read `process.env.MY_VAR` in specs or page objects
+
+## CI Configuration
+
+Set secrets in CI environment variables (not files):
+- `AMAZON_EMAIL`, `AMAZON_PASSWORD` for account tests
+- `BASE_URL` if testing a non-production URL

@@ -1,0 +1,82 @@
+---
+description: Manual test case and test plan format for scenario-based QA
+globs: specs/**/*.md
+alwaysApply: false
+---
+
+# Manual Test Case Format
+
+Read `.cursor/system-context/QA-PERSONA.md` for test design techniques.
+
+## Scenario ID Convention (mutually exclusive)
+
+**One `id_scheme` per spec file.** Schemes are **mutually exclusive** — never mix `TC-NNN`, `SRCH-REG-NNN`, and `JUICER-NNN` in the same plan file.
+
+Declare in spec overview:
+
+```markdown
+**id_scheme:** feature | document | flow
+```
+
+### Suite family → scheme (authoritative)
+
+| Suite / spec file | `id_scheme` | ID format | Example |
+|-------------------|-------------|-----------|---------|
+| `tests/amazon-in/professional/` ← `professional-test-cases.md` | `document` | `TC-NNN` | `TC-001` |
+| `tests/amazon-in/juicer/` ← `juicer-flow.md` | `flow` | `<FLOWKEY>-NNN` | `JUICER-001` |
+| `tests/amazon-in/search/` ← `search.md` | `feature` | `<FEATURE>-<TYPE>-NNN` | `SRCH-REG-001` |
+| New greenfield matrix plans | `feature` | `<FEATURE>-<TYPE>-NNN` | `CART-NEG-002` |
+| Imported Word/Excel documents | `document` | `TC-NNN` | `TC-001` |
+| New ordered E2E journeys | `flow` | `<FLOWKEY>-NNN` | `CHECKOUT-001` |
+
+**TYPE codes** (`feature` only): `REG`, `POS`, `NEG`, `EDGE`  
+**FLOWKEY** (`flow` only): short uppercase key (`JUICER`, `CHECKOUT`, …)
+
+Automation header: `// scenario: <single ID>` matching this file's scheme only.
+
+## Document Structure
+
+```markdown
+# Amazon.in — Search Test Cases
+
+## Overview
+**id_scheme:** feature
+Scope, assumptions, test data (search terms, pincodes).
+
+### 1. Search
+**Overlays:** Dismiss via `BasePage` before steps.
+
+#### SRCH-REG-001 — Valid search returns results
+**Type:** Regression | **Tags:** @regression @positive | **Priority:** P0
+
+**Objective:** Verify search with common term returns product results
+
+**Preconditions:**
+- Guest user on Amazon.in homepage
+- Location overlay dismissed
+
+| Step | Action | Expected Result |
+|------|--------|-----------------|
+| 1 | Enter "books" in search bar | Text visible in field |
+| 2 | Press Enter | SRP loads within 10s |
+| 3 | Observe results | At least one product card visible |
+
+**Automation notes:** Use getByPlaceholder; assert result card exists, not exact title
+```
+
+## Requirements
+
+- Every scenario has: ID, type, tags, priority, objective, preconditions
+- Steps in table format with expected results per step
+- Classify all four types: regression, positive, negative, edge
+- Apply test design techniques (equivalence, boundary, error guessing)
+- Steps executable by a junior manual tester without guessing
+- Scenarios independent — fresh state unless preconditions say otherwise
+- Include automation notes (locator hints, dynamic content warnings)
+
+## Minimum Coverage Per Feature
+
+- 1+ regression (P0)
+- 2+ positive (P1)
+- 2+ negative (P1)
+- 1+ edge (P2)
