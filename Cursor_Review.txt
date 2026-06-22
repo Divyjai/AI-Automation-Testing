@@ -1,0 +1,575 @@
+1. Current structure
+QA_Automation/
+├── AGENTS.md                          ← hybrid entry (context + routing)
+├── docs/input/README.md               ← task-specific (stale)
+└── .cursor/
+    ├── README.md                      ← hybrid entry (duplicate)
+    ├── mcp.json                       ← MCP config (outside 4 pillars — acceptable)
+    ├── system-context/                (5 files — LOGIN.md MISSING)
+    │   ├── PROJECT.md
+    │   ├── APPLICATION.md
+    │   ├── ARCHITECTURE.md
+    │   ├── QA-PERSONA.md
+    │   └── SDLC-WORKFLOW.md           ← 336 lines — workflow, not pure context
+    ├── rules/                         (6 .mdc — flat)
+    │   ├── sdlc-core.mdc          alwaysApply
+    │   ├── 500-guardrils.mdc          alwaysApply  ← typo + wrong number
+    │   ├── playwright-tests.mdc   globs: tests/**
+    │   ├── test-plans.mdc         globs: specs/**
+    │   ├── page-object-model.mdc  globs: tests/pages/fixtures
+    │   └── environment-config.mdc globs: config/playwright
+    ├── agents/                        (4 files)
+    │   ├── qa-pipeline.md             362 lines — BLOATED
+    │   ├── test-planner.md
+    │   ├── test-generator.md          39 lines — good
+    │   └── test-healer.md
+    └── skills/                        (7 skills)
+        ├── qa-pipeline/SKILL.md
+        ├── plan-tests/SKILL.md
+        ├── generate-tests/SKILL.md
+        ├── heal-tests/SKILL.md
+        ├── run-tests/SKILL.md
+        └── review-tests/SKILL.md
+Total instruction surface: ~2,100 lines across governance files (excluding project code).
+
+2. Full file classification
+File	Category	One-line purpose	Verdict
+system-context/PROJECT.md
+system-context
+Project identity, stack, agent overview
+Keep — trim agent/lifecycle duplicate
+system-context/APPLICATION.md
+system-context
+Feature scope, test matrix
+Keep
+system-context/ARCHITECTURE.md
+system-context
+Directory layout, fixture chain, config
+Keep — stop restating guard rules
+system-context/QA-PERSONA.md
+system-context
+QA mindset, design techniques
+Keep — align lifecycle to SDLC
+system-context/SDLC-WORKFLOW.md
+misplaced (workflow)
+Canonical 8-stage pipeline
+Keep content — wrong folder per your contract
+system-context/LOGIN.md
+system-context
+OTP/login procedure
+MISSING — create
+rules/sdlc-core.mdc
+rule/guardrail
+Routing, precedence, partial invocation
+Keep — fix guard filename ref
+rules/500-guardrils.mdc
+rule/guardrail
+Security + POM hard constraints
+Keep content — rename to guard-rules.mdc
+rules/playwright-tests.mdc
+rule
+Spec authoring standards
+Keep
+rules/test-plans.mdc
+rule
+Manual plan format + ID schemes
+Keep
+rules/page-object-model.mdc
+rule
+POM + fixture chain patterns
+Keep — dedupe from guards
+rules/environment-config.mdc
+rule
+Env loading standards
+Keep
+agents/qa-pipeline.md
+agent
+Orchestrator persona + boundaries
+Keep role — delete 70% of body
+agents/test-planner.md
+agent
+Stage 1 persona
+Keep — trim coverage essay
+agents/test-generator.md
+agent
+Stages 3–4 persona
+Keep — model file
+agents/test-healer.md
+agent
+Stage 6 persona
+Keep
+skills/qa-pipeline/SKILL.md
+skill
+Pipeline trigger checklist
+Keep — correct thin design
+skills/plan-tests/SKILL.md
+skill
+Stage 1 procedure
+Keep
+skills/generate-tests/SKILL.md
+skill
+Stage 4 procedure
+Keep
+skills/heal-tests/SKILL.md
+skill
+Stage 6 procedure
+Keep
+skills/run-tests/SKILL.md
+skill
+Stages 5+8 execution
+Keep
+skills/review-tests/SKILL.md
+skill
+Stage 7 audit
+Keep — replace checklist with rule refs
+.cursor/README.md
+duplicate
+Onboarding + structure
+Consolidate with AGENTS.md
+AGENTS.md
+duplicate
+Root agent entry
+Keep one router version
+docs/input/README.md
+task-specific
+Input doc guide
+Keep — update to 8-stage
+mcp.json
+config
+Playwright MCP
+Keep
+3. Folder contract violations
+A. Structure correctness
+Issue	Severity
+SDLC-WORKFLOW.md in system-context/
+Medium — your contract says workflows do not belong in system-context
+No workflows/ folder (workflow lives in context)
+Medium
+Triple entry points: AGENTS.md, .cursor/README.md, PROJECT.md agents section
+High
+500-guardrils.mdc — wrong number + typo vs all references
+Critical
+LOGIN.md missing from system-context/
+Critical
+mcp.json at .cursor/ root
+OK — not a governance violation
+B. Content correctness
+File	Violation
+SDLC-WORKFLOW.md
+Mixes workflow + gates + routing (acceptable as canonical, wrong folder)
+PROJECT.md
+Mixes context + agent table + lifecycle table (duplicate of SDLC)
+ARCHITECTURE.md
+References non-existent guard-rules.mdc
+qa-pipeline.md
+Mixes agent persona + full workflow spec + metrics + defect taxonomy
+review-tests/SKILL.md
+Restates rules that live in 500-guardrils + 300 + 400
+QA-PERSONA.md
+Alternate lifecycle (no explicit Login/Review stages) vs SDLC
+C. Priority correctness
+Documented precedence in sdlc-core.mdc:
+
+1. guard-rules.mdc   ← FILE DOES NOT EXIST (actual: 500-guardrils.mdc)
+2. sdlc-core.mdc
+3. SDLC-WORKFLOW.md
+4. Glob rules (200, 100, 300, 400)
+5. system-context/*.md
+Problem: Step 1 is broken on explicit read. 500-guardrils.mdc still auto-loads via alwaysApply: true, so guards are enforced silently — but any agent told to "read guard-rules.mdc" will fail or hallucinate.
+
+Can a file override a rule by accident?
+qa-pipeline.md can — it re-defines gates, handoffs, success criteria at length. Precedence says SDLC wins, but token load means the agent may follow the bloated agent file first.
+
+D. Maintenance correctness
+New contributor can understand the intent quickly (4 agents, 8 stages).
+Duplicate tables across 5 files will drift — already happening (docs/input/README.md is 5-step; SDLC is 8-step).
+Setup will get noisier if qa-pipeline.md keeps growing.
+4. Duplicate analysis
+Exact / near-exact duplicates
+File A	File B	Type	Est. %	Action
+AGENTS.md
+.cursor/README.md
+Partial
+45%
+One entry doc; other = pointer
+AGENTS.md
+PROJECT.md (agents + lifecycle)
+Partial
+35%
+Remove tables from PROJECT
+SDLC-WORKFLOW.md
+qa-pipeline.md
+Partial
+50–55%
+Strip qa-pipeline to orchestration only
+qa-pipeline/SKILL.md
+agents/qa-pipeline.md
+Partial
+30%
+Agent should not repeat checklist
+test-planner.md
+plan-tests/SKILL.md
+Partial
+35%
+Remove coverage lists from agent
+review-tests/SKILL.md
+500-guardrils + 300 + 400
+Partial
+40%
+Checklist → "verify per rule X"
+playwright-tests.mdc
+500-guardrils.mdc (POM section)
+Partial
+25%
+Keep both; guards win per precedence
+page-object-model.mdc
+500-guardrils.mdc (fixture chain)
+Partial
+30%
+300 = patterns; 500 = hard bans
+QA-PERSONA.md scenario example
+test-plans.mdc template
+Partial
+20%
+Keep persona example; 200 = format law
+QA-PERSONA.md lifecycle
+SDLC-WORKFLOW.md
+Conceptual
+25%
+QA-PERSONA must reference SDLC stages
+All refs
+guard-rules.mdc
+Name mismatch
+100%
+Rename 500-guardrils.mdc
+Conceptual duplicates (same intent, different wording)
+Topic	Canonical source	Duplicates to strip
+Agent routing table
+sdlc-core.mdc
+SDLC routing section (keep one — recommend SDLC for workflow context, 000 for alwaysApply)
+4-agent table
+SDLC-WORKFLOW.md
+AGENTS, README, PROJECT, qa-pipeline header
+Fixture chain
+page-object-model.mdc
+ARCHITECTURE, generate-tests, 100, 500
+OTP policy
+Should be LOGIN.md
+AGENTS, README, SDLC, 500 — scattered until LOGIN exists
+Coverage categories
+APPLICATION.md / 200
+PROJECT, test-planner, QA-PERSONA
+5. Misplaced files
+Current location	Recommended location	Reason	Risk
+system-context/SDLC-WORKFLOW.md
+workflows/SDLC-WORKFLOW.md (new folder)
+Your contract: workflows ≠ system-context
+Medium
+rules/500-guardrils.mdc
+rules/guard-rules.mdc
+Precedence + 14 broken refs
+Critical
+agents/qa-pipeline.md (workflow body)
+Content belongs in SDLC-WORKFLOW.md only
+Agent ≠ workflow spec
+High
+Agent table in PROJECT.md
+agents/ or single entry doc
+Context ≠ agent registry
+Medium
+Login steps in AGENTS.md / README.md
+system-context/LOGIN.md
+Context fragmentation
+Critical
+docs/input/README.md pipeline steps
+Point to SDLC only
+Stale local instructions
+Medium
+6. Token optimization
+Area	Est. waste	Impact	Pattern
+qa-pipeline.md (362 lines)
+25–30% of pipeline loads
+High
+Essay-style agent re-stating SDLC
+Triple entry points
+10–15%
+Medium
+Same tables in 3 files
+Agent + skill pairs (planner, pipeline)
+12–18%
+Medium
+Acceptable if agents stay thin
+POM rules in 100 + 300 + 500
+8–12%
+Low
+Mitigated by precedence
+review-tests full checklist
+10%
+Low
+Repeats guard rules
+SDLC-WORKFLOW.md (336 lines)
+Necessary cost
+Medium
+Justified if sole workflow source
+Broken LOGIN.md / guard-rules reads
+5–10%
+High
+Retry, confusion, invented content
+Recoverable reduction: 25–35% on orchestration paths after Phase 1 fixes.
+
+Bad patterns present
+Same 4-agent table in 5 files
+qa-pipeline.md is narrative workflow documentation wearing an agent costume
+POM do/don't stated in guards, POM rule, playwright rule, review skill, QA-PERSONA
+Good patterns present
+sdlc-core.mdc correctly refuses to define stages
+test-generator.md is thin and references canonical sources
+qa-pipeline/SKILL.md is checklist-only (54 lines) — this is the right pattern
+Glob-scoped rules reduce always-on token load
+Skills reference SDLC instead of redefining stages (mostly)
+7. Priority order (what to read first)
+Always-consider first (your Section 3)
+Order	File	Why
+1
+system-context/PROJECT.md
+What the project is
+2
+rules/500-guardrils.mdc (should be guard-rules.mdc)
+Hard law — alwaysApply: true
+3
+rules/sdlc-core.mdc
+Routing + precedence — alwaysApply: true
+4
+Agent file for routed task
+Persona + boundaries only
+5
+Matching skill
+Procedure for the stage
+6
+Glob rules for files being edited
+100/200/300/400
+7
+Task-local (docs/input/*, spec under edit)
+Must not repeat global rules
+Canonical source of truth per topic
+Topic	Canonical file	Strip duplicates from
+Project identity
+PROJECT.md
+AGENTS, README
+Application scope
+APPLICATION.md
+test-planner coverage essay
+Technical layout
+ARCHITECTURE.md
+generate-tests layer table (reference only)
+QA mindset
+QA-PERSONA.md
+—
+Workflow stages/gates
+SDLC-WORKFLOW.md
+qa-pipeline.md, docs/input/README
+Routing
+sdlc-core.mdc
+Partial overlap in SDLC routing table — pick one primary
+Security + POM guards
+500-guardrils.mdc → rename
+review-tests checklist, ARCHITECTURE guard paragraph
+Spec authoring
+playwright-tests.mdc
+—
+Plan format
+test-plans.mdc
+QA-PERSONA example (keep as illustration only)
+POM patterns
+page-object-model.mdc
+generate-tests architecture table
+Env config
+environment-config.mdc
+—
+Login/OTP
+LOGIN.md (missing)
+AGENTS, README, SDLC login snippets
+Stage 1 procedure
+plan-tests/SKILL.md
+test-planner.md lists
+Stage 4 procedure
+generate-tests/SKILL.md
+—
+Stage 6 procedure
+heal-tests/SKILL.md
+test-healer constraints block
+Stage 5/8 execution
+run-tests/SKILL.md
+—
+Stage 7 audit
+review-tests/SKILL.md
+Reference rules, don't restate
+Orchestration
+agents/qa-pipeline.md (thin) + qa-pipeline/SKILL.md
+Remove workflow body from agent
+8. Deletion / consolidation candidates
+Do not delete whole files yet — consolidate content first.
+
+Candidate action	Target	Rationale
+Strip 250+ lines
+agents/qa-pipeline.md
+Repeats SDLC; keep ~50-line conductor
+Merge to one
+AGENTS.md OR .cursor/README.md
+45% duplicate
+Remove agent table
+PROJECT.md
+Link to AGENTS or SDLC
+Replace checklist with refs
+review-tests/SKILL.md
+40% overlap with rules
+Remove coverage lists
+test-planner.md lines 30–55
+Duplicates plan-tests + QA-PERSONA
+Update, not delete
+docs/input/README.md
+Stale 5-step pipeline
+Create (not delete)
+LOGIN.md
+15+ phantom references
+Rename
+500-guardrils.mdc → guard-rules.mdc
+Broken canonical guard
+Safe to delete after consolidation:
+
+Redundant agent/lifecycle tables in README or AGENTS (whichever loses the merge)
+Repeated gate definitions inside qa-pipeline.md once SDLC is sole authority
+9. What to keep (strong files)
+File	Why keep
+sdlc-core.mdc
+Clean governance — routes without defining workflow
+500-guardrils.mdc (content)
+Complete, actionable guard law
+SDLC-WORKFLOW.md
+Single workflow authority — move folder later
+test-generator.md
+Thin agent — correct pattern
+qa-pipeline/SKILL.md
+Checklist trigger — correct skill pattern
+test-plans.mdc
+Authoritative ID governance
+page-object-model.mdc
+Useful examples without being pure duplication
+plan-tests, generate-tests, heal-tests, run-tests skills
+Scoped procedures
+APPLICATION.md, ARCHITECTURE.md
+Unique context
+mcp.json
+Minimal, correct
+10. Conflicting instructions
+Conflict	Files	Resolution
+Guard filename
+500-guardrils.mdc vs all guard-rules.mdc refs
+Rename file; update 000 if number intentional
+Lifecycle stage count
+docs/input/README (5 steps) vs SDLC (8)
+Update README; link SDLC
+Lifecycle naming
+QA-PERSONA (Plan→Implement→Verify→Heal→Review) vs SDLC (adds Login, Execute, Report)
+QA-PERSONA subordinate to SDLC
+Workflow location
+Folder contract vs current system-context/SDLC
+Move to workflows/ or accept SDLC as exception with index
+qa-pipeline skill trigger says "automate my test cases"
+000 routes that phrase to @test-generator
+Fix skill trigger wording
+Precedence: SDLC vs 000 on routing
+Both have routing tables
+Keep routing in 000 only (alwaysApply) OR SDLC only — not both
+11. Architecture scorecard
+Category	Score /10	Note
+Folder structure
+6.5
+Clean 4-pillar split; workflow misplaced; no LOGIN
+Context design
+7.0
+Good files; SDLC too large for context bucket
+Skills design
+8.5
+Stage-aligned, mostly reference-only
+Rules design
+7.5
+Good precedence; broken guard name; POM triple-state
+Agents design
+6.0
+3/4 agents OK; qa-pipeline bloated
+Token efficiency
+6.0
+Recoverable 25–35% waste
+Scalability
+8.0
+ID schemes, serial suites, Allure CI documented
+Maintainability
+7.0
+Canonical SDLC helps; entry-point sprawl hurts
+Overall: 7.1 / 10
+12. Recommended implementation path
+Recommendations only — no changes applied.
+
+Step 1 — Inventory ✅ (this report)
+Step 2 — Classify ✅ (table in Section 2)
+Step 3 — Canonical sources ✅ (Section 7)
+Step 4 — Remove overlap (priority order)
+Phase	Action	Token gain	Maintainability
+P1 Critical
+Create LOGIN.md
+Fixes broken reads
+High
+P1 Critical
+Rename 500-guardrils.mdc → guard-rules.mdc
+Fixes 14 refs
+High
+P1 Critical
+Slim qa-pipeline.md to ~50 lines (role, delegate, context list)
+20–30% pipeline
+High
+P1 Critical
+Fix qa-pipeline/SKILL.md trigger ("automate my test cases" → generator)
+Routing clarity
+Medium
+P2 Optimize
+Merge AGENTS.md + .cursor/README.md into one router
+10–15%
+High
+P2 Optimize
+Remove agent/lifecycle tables from PROJECT.md
+5%
+Medium
+P2 Optimize
+review-tests → rule references not full checklist
+10%
+Medium
+P2 Optimize
+Trim test-planner.md coverage blocks
+5%
+Medium
+P2 Optimize
+Update docs/input/README.md to 8-stage + SDLC link
+Onboarding
+Medium
+P2 Optimize
+Align QA-PERSONA.md lifecycle to SDLC 8 stages
+Conceptual dedup
+Medium
+P3 Scale
+Add workflows/; move or symlink SDLC-WORKFLOW.md
+Folder contract
+Medium
+P3 Scale
+Optional rules/guardrails/ subfolder
+Enterprise taxonomy
+Low
+P3 Freeze
+Document load manifest in 000 or PROJECT.md
+Predictable tokens
+High
+Step 5–8 — Validate, re-audit, freeze
+After P1: re-check that every Read: line in agents/skills resolves to a real file.
+After P2: re-run duplicate scan on entry points and POM triple-state.
+Freeze: no new files unless they add a new responsibility not covered by canonical sources.
+

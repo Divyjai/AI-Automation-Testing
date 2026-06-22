@@ -1,12 +1,9 @@
 ---
-description: Playwright test authoring standards — POM, fixtures, best practices
-globs: tests/**/*.ts
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Playwright Test Standards
 
-Read `QA-PERSONA.md`, `300-page-object-model.mdc`, and `600-guard-rules.mdc`.
+Read `QA-PERSONA.md`, `page-object-model.mdc`, and `guard-rules.mdc`.
 
 ## File Header
 
@@ -23,7 +20,7 @@ One `id_scheme` per spec file — header uses **one** scenario ID from that sche
 | `document` | `TC-001` |
 | `flow` | `JUICER-003` |
 
-Never combine schemes in one header line. See `200-test-plans.mdc`.
+Never combine schemes in one header line. See `test-plans.mdc`.
 
 ## Imports (required)
 

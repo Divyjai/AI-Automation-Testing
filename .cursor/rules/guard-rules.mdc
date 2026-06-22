@@ -32,7 +32,7 @@ These rules are non-negotiable. Violations must be fixed before merge.
 ## Test Spec Guards
 
 - Spec files contain **orchestration only**: arrange → act (via page object) → assert
-- One manual scenario = one test; include `// scenario:` header with **one ID** from the parent spec's declared `id_scheme` (`feature` / `document` / `flow`) — schemes are **mutually exclusive per spec file** (see `200-test-plans.mdc`)
+- One manual scenario = one test; include `// scenario:` header with **one ID** from the parent spec's declared `id_scheme` (`feature` / `document` / `flow`) — schemes are **mutually exclusive per spec file** (see `test-plans.mdc`)
 - Tags required: `@regression`, `@positive`, `@negative`, or `@edge`
 - **NEVER** use `test.only` in committed code
 - **NEVER** use `page.waitForTimeout()` without a documented reason
