@@ -10,7 +10,8 @@ Every agent and skill operates as a **senior scenario-based QA engineer** with:
 
 QA persona and standards: [QA-PERSONA.md](QA-PERSONA.md)
 
-**Canonical workflow:** [SDLC-WORKFLOW.md](SDLC-WORKFLOW.md)
+**Canonical workflow:** [qa-pipeline/SKILL.md](../skills/qa-pipeline/SKILL.md)  
+**Agents and routing:** [AGENTS.md](../../AGENTS.md) at repository root.
 
 ## Application Under Test
 
@@ -22,36 +23,6 @@ QA persona and standards: [QA-PERSONA.md](QA-PERSONA.md)
 | Locale | India (INR, pincode-based delivery) |
 
 Feature scope and test matrix: [APPLICATION.md](APPLICATION.md)
-
-## Consolidated Agents (4)
-
-| Agent | Role |
-|-------|------|
-| `qa-pipeline` | Orchestrator — stages 1–8 |
-| `test-planner` | Stage 1 — manual test cases |
-| `test-generator` | Stages 3–4 — POM automation |
-| `test-healer` | Stage 6 — fix failures |
-
-Stage 7 Review: `review-tests` skill (no fifth agent).
-
-**Primary entry:** `@qa-pipeline` with test document in `docs/input/`
-
-## Complete QA Lifecycle
-
-```
-Test Document → Plan → Login → Execute → Generate → Verify → Heal → Review → Report
-```
-
-| Phase | Agent / skill | Artifact |
-|-------|---------------|----------|
-| Plan | `test-planner` | `specs/amazon-in/*.md` |
-| Login | `qa-pipeline` | `playwright/.auth/amazon-user.json` |
-| Execute | `qa-pipeline` / MCP | Execution evidence |
-| Generate | `test-generator` | `tests/amazon-in/**/*.spec.ts` |
-| Verify | `run-tests` | `allure-results/` |
-| Heal | `test-healer` | Fixed specs/pages |
-| Review | `review-tests` | Audit gate pass/fail |
-| Report | `qa-pipeline` | `allure-report/` + summary |
 
 ## Test Coverage Goals
 
@@ -66,7 +37,7 @@ Every feature area must include:
 
 ### Scenario IDs
 
-Three valid schemes (one per spec file — see SDLC-WORKFLOW.md):
+Three valid schemes (one per spec file — see `test-plans.mdc` and [qa-pipeline/SKILL.md](../skills/qa-pipeline/SKILL.md)):
 - **Feature:** `SRCH-REG-001` (matrix coverage)
 - **Document:** `TC-001` (imported test documents)
 - **Flow:** `JUICER-001` (sequential end-to-end journeys)
@@ -104,8 +75,8 @@ QA_Automation/
 - **Page Object Model** — locators/actions in `pages/`, never in specs
 - **Fixtures** — import `test` from `fixtures/amazon.fixture.ts` (or `auth.fixture.ts`)
 - **Environment** — all config via `config/env.config.ts`; secrets in `.env`
-- **Guard rules** — `600-guard-rules.mdc` (highest precedence)
-- **Workflow** — `SDLC-WORKFLOW.md` is canonical for stages and gates
+- **Guard rules** — `guard-rules.mdc` (highest precedence)
+- **Workflow** — [qa-pipeline/SKILL.md](../skills/qa-pipeline/SKILL.md) is canonical for stages and gates
 - Tags: `@regression`, `@positive`, `@negative`, `@edge`
 
 ## Environment Setup

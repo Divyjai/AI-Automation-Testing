@@ -1,0 +1,67 @@
+---
+description: Core AI SDLC — agent routing, rule precedence, partial invocation (not workflow stages)
+alwaysApply: true
+---
+
+# AI SDLC Core — Governance & Routing
+
+**Workflow authority:** `.cursor/skills/qa-pipeline/SKILL.md` only. This file routes agents/skills — it does not define stages, gates, handoffs, or reporting.
+
+## Agents (4 only)
+
+| Agent | Scope |
+|-------|-------|
+| `@qa-pipeline` | Full end-to-end pipeline **or** explicit multi-stage orchestration (e.g. login + verify + report) |
+| `@test-planner` | Stage 1 — plan only |
+| `@test-generator` | Stages 3–4 — automate existing specs/plans |
+| `@test-healer` | Stage 6 — heal only |
+
+**Skills (not agents):** `review-tests` (stage 7), `run-tests` (stages 5, 8), `plan-tests`, `generate-tests`, `heal-tests`, `qa-pipeline`.
+
+Do not create a fifth agent for review or reporting.
+
+## Rule Precedence
+
+1. **`guard-rules.mdc`**
+2. **`sdlc-core.mdc`** (this file)
+3. **`qa-pipeline/SKILL.md`**
+4. Glob rules: `test-plans.mdc` (specs), `playwright-tests.mdc` (tests), `page-object-model.mdc` (pages/fixtures), `environment-config.mdc` (config)
+5. **`system-context/*.md`**
+
+If `playwright-tests.mdc` / `page-object-model.mdc` disagree with `guard-rules.mdc`, follow `guard-rules.mdc`. If any doc disagrees with `qa-pipeline/SKILL.md`, follow `qa-pipeline/SKILL.md`.
+
+## Context Loading
+
+`PROJECT.md`, `QA-PERSONA.md`, `APPLICATION.md`, `LOGIN.md`, `ARCHITECTURE.md`, `skills/qa-pipeline/SKILL.md`
+
+## Phase Routing (exclusive — first match wins)
+
+| Priority | Signals | Route to |
+|----------|---------|----------|
+| 1 | `pipeline`, `full flow`, `end-to-end`, `run pipeline`; **or** test document **and** automate/heal/report together; **or** explicit multi-stage (e.g. "login then run tests and report") | `@qa-pipeline` |
+| 2 | `plan`, `test cases`, `convert document`, `scenarios` — **no** automate/generate | `@test-planner` |
+| 3 | `automate`, `automate my tests`, `generate`, `implement`, automate **existing** `specs/amazon-in/` | `@test-generator` |
+| 4 | `fix`, `heal`, `debug`, `flaky`, `failing` | `@test-healer` |
+| 5 | `review`, `audit`, POM compliance, coverage audit | **`review-tests` skill** |
+| 6 | `run tests`, `regression`, `verify`, `Allure` — **no** generate/heal/plan | **`run-tests` skill** |
+
+**Not `@qa-pipeline`:** automate-only, plan-only, heal-only, review-only, run-only — unless user explicitly asks for full or multi-stage orchestration.
+
+**Login / OTP:** not routed here. See `LOGIN.md` and `qa-pipeline/SKILL.md` stage 2. Login-only requests → `@qa-pipeline` stage 2 per partial-invocation section in `qa-pipeline/SKILL.md`.
+
+## Partial Invocation
+
+| Route | Runs | Must NOT run unless user asks |
+|-------|------|-------------------------------|
+| `@test-planner` | Stage 1 | Login, execute, generate, verify, heal, review, report |
+| `@test-generator` | Stages 3–4 | Full pipeline; login (unless auth scenarios + user approves) |
+| `@test-healer` | Stage 6 | Plan, generate, review, report |
+| `review-tests` | Stage 7 | Plan, generate, verify, heal, report |
+| `run-tests` | Stages 5, 8 | Plan, generate, heal, review |
+| `@qa-pipeline` | Stages 1–8 or user-named multi-stage subset | Skip stages only on explicit user direction |
+
+## Coding Standards
+
+- POM — `pages/`, fixtures, `config/`
+- Guards — `guard-rules.mdc`
+- Commit only when user explicitly asks

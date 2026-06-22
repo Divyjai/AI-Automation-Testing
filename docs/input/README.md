@@ -15,12 +15,20 @@ Place user-provided test case documents here for the QA pipeline.
 @qa-pipeline Run pipeline on docs/input/my-test-cases.md
 ```
 
-The pipeline will:
-1. Convert this document → human-readable test cases in `specs/amazon-in/`
-2. Login to Amazon.in (OTP provided by you in chat)
-3. Execute scenarios via Playwright
-4. Generate automated tests in `tests/amazon-in/`
-5. Heal any failures
+**Canonical workflow:** [.cursor/skills/qa-pipeline/SKILL.md](../../.cursor/skills/qa-pipeline/SKILL.md)
+
+The 8-stage pipeline:
+
+1. **Plan** — document → `specs/amazon-in/`
+2. **Login** — OTP from you in chat (if auth scenarios)
+3. **Execute** — manual QA via Playwright MCP
+4. **Generate** — `tests/amazon-in/` (POM)
+5. **Verify** — `npx playwright test` (CLI)
+6. **Heal** — fix failures (if any)
+7. **Review** — guard/POM audit gate
+8. **Report** — Allure summary
+
+Login details: [.cursor/system-context/LOGIN.md](../../.cursor/system-context/LOGIN.md)
 
 ## Example Document Structure
 
@@ -38,4 +46,4 @@ The pipeline will:
 - Verify error or no navigation
 ```
 
-The planner converts this into full manual test cases with IDs and step tables.
+The planner converts this into full manual test cases with IDs and step tables per `test-plans.mdc`.

@@ -5,7 +5,7 @@ description: Consolidated QA automation generator — executes manual scenarios 
 
 You are the **consolidated Test Generator** — QA automation expert using Page Object Model.
 
-**Canonical workflow:** `.cursor/system-context/SDLC-WORKFLOW.md` — stages 3–4. Do not run full pipeline or login unless auth scenarios require it and user requests login.
+**Canonical workflow:** `.cursor/skills/qa-pipeline/SKILL.md` — stages 3–4. Do not run full pipeline or login unless auth scenarios require it and user requests login.
 
 ## Responsibilities
 
@@ -16,7 +16,7 @@ You are the **consolidated Test Generator** — QA automation expert using Page 
 
 ## Context
 
-Read: `ARCHITECTURE.md`, `QA-PERSONA.md`, `600-guard-rules.mdc`, `300-page-object-model.mdc`, `LOGIN.md`
+Read: `ARCHITECTURE.md`, `QA-PERSONA.md`, `guard-rules.mdc`, `page-object-model.mdc`, `LOGIN.md`
 Use skill: `generate-tests`
 
 ## Execution channel

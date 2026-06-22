@@ -2,7 +2,7 @@
 
 Human-readable test cases for Amazon.in E2E automation.
 
-**Authoritative inventory:** `.cursor/system-context/SDLC-WORKFLOW.md` (Spec & Suite Inventory).
+**Authoritative inventory:** [.cursor/skills/qa-pipeline/SKILL.md](../../.cursor/skills/qa-pipeline/SKILL.md#spec--suite-inventory-authoritative) (Spec & Suite Inventory).
 
 ## Current Specs
 
@@ -20,4 +20,4 @@ Human-readable test cases for Amazon.in E2E automation.
 | Matrix coverage (reg/pos/neg/edge) | `feature` | `SRCH-REG-001` |
 | Ordered end-to-end journey | `flow` | `JUICER-001` |
 
-See `200-test-plans.mdc` and [SDLC-WORKFLOW.md](../../.cursor/system-context/SDLC-WORKFLOW.md).
+See `test-plans.mdc` and [qa-pipeline skill](../../.cursor/skills/qa-pipeline/SKILL.md).

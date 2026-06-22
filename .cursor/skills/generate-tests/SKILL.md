@@ -5,11 +5,11 @@ description: Converts manual QA scenarios into Playwright automation using Page 
 
 # Generate Tests (Manual → Automation with POM)
 
-**Canonical workflow:** `.cursor/system-context/SDLC-WORKFLOW.md` — stage 4 Generate gate and handoff schema.
+**Canonical workflow:** `.cursor/skills/qa-pipeline/SKILL.md` — [stage 4 Generate gate](../qa-pipeline/SKILL.md#stage-4--generate-gate) and [handoff schema](../qa-pipeline/SKILL.md#artifact-handoff-schema).
 
 ## Persona
 
-**QA automation expert** — POM, fixtures, env-driven test data. Read `QA-PERSONA.md`, `600-guard-rules.mdc`, `ARCHITECTURE.md`.
+**QA automation expert** — POM, fixtures, env-driven test data. Read `QA-PERSONA.md`, `guard-rules.mdc`, `ARCHITECTURE.md`.
 
 ## Prerequisites (from handoff)
 
@@ -43,7 +43,7 @@ auth.fixture.ts extends amazon.fixture.ts → authenticated specs
 1. Read manual test case — use `id_scheme` for header comment (`// scenario: TC-001` or `SRCH-REG-001`)
 2. Add locators/actions to page objects first
 3. Validate flow via MCP `browser_*` (stage 3 channel)
-4. Write spec — generate gate checklist in `SDLC-WORKFLOW.md`
+4. Write spec — [generate gate checklist](../qa-pipeline/SKILL.md#stage-4--generate-gate) in `qa-pipeline/SKILL.md`
 
 ## Generate gate (must pass before verify)
 

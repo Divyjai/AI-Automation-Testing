@@ -5,7 +5,7 @@ description: Executes the QA automation suite and produces structured test repor
 
 # Run Tests (Test Execution)
 
-**Canonical workflow:** `.cursor/system-context/SDLC-WORKFLOW.md` — stages 5 (Verify) and 8 (Report).
+**Canonical workflow:** `.cursor/skills/qa-pipeline/SKILL.md` — [stages 5 (Verify)](../qa-pipeline/SKILL.md#stage-5--verify-gate) and [8 (Report)](../qa-pipeline/SKILL.md#stage-8--report-gate).
 
 ## Persona
 
@@ -29,7 +29,7 @@ npx playwright test --grep @positive
 npx playwright test --grep @negative
 npx playwright test --grep @edge
 
-# By suite (see SDLC-WORKFLOW.md inventory)
+# By suite (see [spec & suite inventory](../qa-pipeline/SKILL.md#spec--suite-inventory-authoritative))
 npx playwright test tests/amazon-in/search/
 npx playwright test tests/amazon-in/professional/ --workers=1
 npx playwright test tests/amazon-in/juicer/ --workers=1
@@ -54,9 +54,9 @@ npm run allure:open
 
 Artifacts: `allure-results/` (stage 5), `allure-report/` + `allure-report/history/` (stage 8).
 
-Stage 8 gate requires stage 7 passed, successful generate, retry/flaky notes — see SDLC Report gate.
+Stage 8 gate requires stage 7 passed, successful generate, retry/flaky notes — see [stage 8 Report gate](../qa-pipeline/SKILL.md#stage-8--report-gate).
 
-History/trends, CI artifacts, categories, retry analytics: see SDLC-WORKFLOW.md Allure section.
+History/trends, CI artifacts, categories, retry analytics: see [Allure & Reporting Strategy](../qa-pipeline/SKILL.md#allure--reporting-strategy).
 
 Playwright HTML (`npx playwright show-report`) is supplementary only.
 
@@ -68,7 +68,7 @@ Playwright HTML (`npx playwright show-report`) is supplementary only.
 | `search/` | default | Parallel |
 | CI | `workers=1` (config) | See `playwright.config.ts` |
 
-See `SDLC-WORKFLOW.md` scalability policy for throttling guidance.
+See [scalability policy](../qa-pipeline/SKILL.md#scalability-policy) for throttling guidance.
 
 ## Report format
 

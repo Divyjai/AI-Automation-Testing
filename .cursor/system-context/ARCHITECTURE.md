@@ -102,7 +102,7 @@ BASE_URL=https://www.amazon.in npx playwright test
 
 ## Guard Rules
 
-Enforced via `.cursor/rules/600-guard-rules.mdc` (always apply). Precedence: see `000-sdlc-core.mdc`.
+Enforced via `.cursor/rules/guard-rules.mdc` (always apply). Precedence: see `sdlc-core.mdc`.
 
 ## Test Spec Example
 
@@ -119,7 +119,7 @@ test('valid search @regression @positive', async ({ homePage, searchResultsPage 
 
 ## Test Suite Organization
 
-Authoritative inventory: [SDLC-WORKFLOW.md](SDLC-WORKFLOW.md#spec--suite-inventory-authoritative)
+Authoritative inventory: [qa-pipeline/SKILL.md](../skills/qa-pipeline/SKILL.md#spec--suite-inventory-authoritative)
 
 ```
 specs/amazon-in/                         tests/amazon-in/
@@ -147,7 +147,7 @@ Tags: `@regression`, `@positive`, `@negative`, `@edge`
 
 ## Scalability
 
-See [SDLC-WORKFLOW.md](SDLC-WORKFLOW.md#scalability-policy) for worker, serial suite, and throttling rules.
+See [qa-pipeline/SKILL.md](../skills/qa-pipeline/SKILL.md#scalability-policy) for worker, serial suite, and throttling rules.
 
 ## Reporting
 
@@ -162,4 +162,4 @@ See [SDLC-WORKFLOW.md](SDLC-WORKFLOW.md#scalability-policy) for worker, serial s
 
 CI uploads `allure-report`, `allure-history`, and `playwright-report` artifacts. Failure categories in `reporting/allure/categories.json`. CI retries (`retries: 2`) visible in Allure retry analytics.
 
-Full contract: [SDLC-WORKFLOW.md](SDLC-WORKFLOW.md#allure--reporting-strategy).
+Full contract: [qa-pipeline/SKILL.md](../skills/qa-pipeline/SKILL.md#allure--reporting-strategy).

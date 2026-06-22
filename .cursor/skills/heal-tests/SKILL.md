@@ -5,7 +5,7 @@ description: Debugs failing tests using manual QA reproduction techniques then f
 
 # Heal Tests (Debug Like a Manual Tester)
 
-**Canonical workflow:** `.cursor/system-context/SDLC-WORKFLOW.md` — stage 6 Heal gate.
+**Canonical workflow:** `.cursor/skills/qa-pipeline/SKILL.md` — [stage 6 Heal gate](../qa-pipeline/SKILL.md#stage-6--heal-gate).
 
 ## Persona
 
